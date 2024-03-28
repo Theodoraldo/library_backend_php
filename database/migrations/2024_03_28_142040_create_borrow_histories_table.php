@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('borrow_date');
             $table->date('return_date');
             $table->string('book_state')->default('good');
-            $table->string('instore')->default('yes');
+            $table->string('instore')->default('no');
             $table->string('comment')->nullable();
             $table->unsignedBigInteger('book_id')->constrained();
             $table->unsignedBigInteger('library_patron_id')->constrained();
