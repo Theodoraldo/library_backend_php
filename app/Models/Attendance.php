@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\LibraryPatron;
 
 class Attendance extends Model
 {
@@ -16,8 +17,8 @@ class Attendance extends Model
         'check_out',
     ];
 
-    public function attendance(): BelongsTo
+    public function library_patron(): BelongsTo
     {
-        return $this->belongsTo(Attendance::class);
+        return $this->belongsTo(LibraryPatron::class);
     }
 }

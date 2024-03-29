@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Author;
 use App\Models\Genre;
+use App\Models\BorrowHistory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Book extends Model
