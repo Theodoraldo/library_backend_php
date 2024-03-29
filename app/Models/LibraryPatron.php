@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\BorrowHistory;
+use App\Models\Attendance;
 
 class LibraryPatron extends Model
 {
@@ -21,4 +24,14 @@ class LibraryPatron extends Model
         'identity_card',
         'identity_no',
     ];
+
+    public function borrowHistories(): HasMany
+    {
+        return $this->hasMany(BorrowHistory::class);
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }
