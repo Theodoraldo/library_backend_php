@@ -28,7 +28,3 @@ class Author extends Model
         return $this->hasMany(Book::class);
     }
 }
-
-
-$table->string('country');
-$table->string('profile_picture')->nullable();
