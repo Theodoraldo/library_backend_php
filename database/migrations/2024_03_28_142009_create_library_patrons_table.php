@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('city');
             $table->string('state');
             $table->string('location');
-            $table->string('identity_card')->unique();
+            $table->string('identity_card');
             $table->string('identity_no')->unique();
             $table->boolean('engagement')->default(false);
             $table->timestamps();
