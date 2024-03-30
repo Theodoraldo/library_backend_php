@@ -21,7 +21,7 @@ class BorrowHistory extends Model
         'comment',
         'borrow_date',
         'return_date',
-        'status',
+        'book_state',
     ];
 
     public function library_patron(): BelongsTo

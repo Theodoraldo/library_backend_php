@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('borrow_histories', function (Blueprint $table) {
             $table->id();
             $table->date('borrow_date');
-            $table->date('return_date');
+            $table->date('return_date')->nullable();
             $table->string('book_state')->default('good');
             $table->string('instore')->default('no');
             $table->string('comment')->nullable();
