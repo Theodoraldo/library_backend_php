@@ -15,7 +15,7 @@ class Author extends Model
         'firstname',
         'lastname',
         'email',
-        'contact',
+        'phone_number',
         'address',
         'city',
         'state',
