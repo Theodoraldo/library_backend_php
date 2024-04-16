@@ -76,21 +76,13 @@ class UserController extends Controller
     public function signin(Request $request)
     {
         try {
-            $user = User::where('email', $request->email)->first();
-
-            if (!$user || $user->type !== 'mobile') {
-                return response([
-                    'error' => [$request->email . ' you did not register as mobile user, please use web user sign-in']
-                ], Response::HTTP_UNAUTHORIZED);
-            }
-
             if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
                 return response([
                     'error' => ['Invalid credentials']
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
-            $token = $request->user()->createToken('mobile')->plainTextToken;
+            $token = $request->user()->createToken('passport')->plainTextToken;
             $cookie = cookie('jwt', $token, 60 * 24);
         } catch (\Exception $e) {
             return response([
