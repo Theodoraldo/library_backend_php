@@ -14,6 +14,18 @@ class LibraryPatronResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'firstName' => $this->firstname,
+            'lastName' => $this->lastname,
+            'email' => $this->email,
+            'contact' => $this->contact,
+            'address' => $this->address,
+            'city' => $this->city,
+            'state' => $this->state,
+            'location' => $this->location,
+            'identityCard' => $this->identity_card,
+            'identityNumber' => $this->identity_no,
+        ];
     }
 }
