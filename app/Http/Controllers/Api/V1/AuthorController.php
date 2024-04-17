@@ -38,6 +38,8 @@ class AuthorController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => 'required',
             'lastname' => 'required',
+            'email' => 'required|email|unique:authors',
+            'address' => 'required',
             'city' => 'required',
             'state' => 'required',
             'country' => 'required',
@@ -103,20 +105,8 @@ class AuthorController extends Controller
             } else {
                 $newImagePath = $request->file('profile_picture');
             }
-            Author::findOrFail($request->id)->update(
-                [
-                    'firstname' => $request->firstname,
-                    'lastname' =>  $request->lastname,
-                    'email' => $request->email,
-                    'address' => $request->address,
-                    'phone_number' => $request->phone_number,
-                    'city' => $request->city,
-                    'state' => $request->state,
-                    'country' => $request->country,
-                    'profile_picture' => $newImagePath,
-                ]
-            );
-            return response('Genre record updated successfully !!!', Response::HTTP_OK);
+            Author::findOrFail($request->id)->update($request->all());
+            return response('Author updated successfully !!!', Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -126,7 +116,7 @@ class AuthorController extends Controller
     {
         try {
             Author::findOrFail($id)->delete();
-            return response('Genre record deleted successfully !!!', Response::HTTP_OK);
+            return response('Author deleted successfully !!!', Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
