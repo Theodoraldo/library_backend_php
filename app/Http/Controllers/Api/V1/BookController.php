@@ -36,7 +36,6 @@ class BookController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'genre_name' => 'required',
             'title' => 'required',
             'author_id' => 'required',
             'genre_id' => 'required',
@@ -80,7 +79,6 @@ class BookController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'genre_name' => 'required',
             'title' => 'required',
             'author_id' => 'required',
             'genre_id' => 'required',
@@ -101,18 +99,7 @@ class BookController extends Controller
             } else {
                 $newImagePath = $request->file('profile_picture');
             }
-            Book::findOrFail($request->id)->update(
-                [
-                    'title' => $request->title,
-                    'author_id' => $request->author_id,
-                    'genre_id' => $request->genre_id,
-                    'notes' => $request->notes,
-                    'published_date' => $request->published_date,
-                    'available_copies' => $request->available_copies,
-                    'cover_image' => $newImagePath,
-                    'pages' => $request->pages,
-                ]
-            );
+            Book::findOrFail($request->id)->update($request->all());
             return response('Book record updated successfully !!!', Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
