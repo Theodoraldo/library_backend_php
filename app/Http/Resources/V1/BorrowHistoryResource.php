@@ -14,6 +14,16 @@ class BorrowHistoryResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'bookId' => $this->book_id,
+            'patronId' => $this->patron_id,
+            'userId' => $this->user_id,
+            'borrowDate' => $this->borrow_date,
+            'returnDate' => $this->return_date,
+            'bookState' => $this->book_state,
+            'instore' => $this->instore,
+            'comment' => $this->comment,
+        ];
     }
 }
