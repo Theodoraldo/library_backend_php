@@ -15,6 +15,7 @@ class BorrowHistory extends Model
 
     protected $fillable = [
         'book_id',
+        'borrowed_copies',
         'library_patron_id',
         'user_id',
         'instore',
@@ -23,6 +24,25 @@ class BorrowHistory extends Model
         'return_date',
         'book_state',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($borrowHistory) {
+            $borrowHistory->book->decreaseAvailableCopies($borrowHistory->borrowed_copies);
+        });
+
+        static::deleted(function ($borrowHistory) {
+            $borrowHistory->book->increaseAvailableCopies($borrowHistory->borrowed_copies);
+        });
+
+        static::updated(function ($borrowHistory) {
+            if ($borrowHistory->instore('yes') && $borrowHistory->return_date() !== null) {
+                $borrowHistory->book->increaseAvailableCopies($borrowHistory->borrowed_copies);
+            }
+        });
+    }
 
     public function library_patron(): BelongsTo
     {
