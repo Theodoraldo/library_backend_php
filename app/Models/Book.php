@@ -27,18 +27,15 @@ class Book extends Model
 
     public function decreaseAvailableCopies($borrowedCopies)
     {
-        $this->decrement('available_copies', $borrowedCopies);
-        // Or
-        // $this->available_copies -= $borrowedCopies;
-        // $this->save();
+        $this->available_copies -= $borrowedCopies;
+        $this->save();
     }
 
     public function increaseAvailableCopies($borrowedCopies)
     {
-        $this->increment('available_copies', $borrowedCopies);
-        // Or
-        // $this->available_copies += $borrowedCopies;
-        // $this->save();
+
+        $this->available_copies += $borrowedCopies;
+        $this->save();
     }
 
     public function author(): BelongsTo

@@ -9,6 +9,7 @@ use App\Exceptions\ExceptionHandler;
 use App\Http\Resources\V1\BorrowHistoryResource;
 use Illuminate\Support\Facades\Validator;
 use App\Models\BorrowHistory;
+use Illuminate\Support\Facades\Log;
 
 class BorrowHistoryController extends Controller
 {
@@ -48,12 +49,7 @@ class BorrowHistoryController extends Controller
         }
 
         try {
-            BorrowHistory::create([
-                'borrow_date' => $request->borrow_date,
-                'book_id' =>  $request->book_id,
-                'library_patron_id' => $request->library_patron_id,
-                'user_id' => $request->user_id,
-            ]);
+            BorrowHistory::create($request->all());
             return response('Borrowed book issued successfully !!!', Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
@@ -62,21 +58,12 @@ class BorrowHistoryController extends Controller
 
     public function update(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'borrow_date' => $request->borrow_date,
-            'book_id' =>  $request->book_id,
-            'library_patron_id' => $request->library_patron_id,
-            'user_id' => $request->user_id,
-        ]);
-
-        if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
-        }
-
         try {
-            BorrowHistory::findOrFail($request->id)->update($request->all());
+            $obj = BorrowHistory::findOrFail($request->id);
+            $obj->update($request->all());
+            if ($request->instore === 'yes') {
+                $obj->book->increaseAvailableCopies($obj->borrowed_copies);
+            }
             return response('Borrowed book returned successfully !!!', Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);

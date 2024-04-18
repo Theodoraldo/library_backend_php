@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\LibraryPatron;
 use App\Models\Book;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class BorrowHistory extends Model
 {
@@ -25,6 +26,10 @@ class BorrowHistory extends Model
         'book_state',
     ];
 
+    protected $hidden = [
+        '_method',
+    ];
+
     protected static function boot()
     {
         parent::boot();
@@ -37,11 +42,21 @@ class BorrowHistory extends Model
             $borrowHistory->book->increaseAvailableCopies($borrowHistory->borrowed_copies);
         });
 
-        static::updated(function ($borrowHistory) {
-            if ($borrowHistory->instore('yes') && $borrowHistory->return_date() !== null) {
-                $borrowHistory->book->increaseAvailableCopies($borrowHistory->borrowed_copies);
-            }
-        });
+        // // static::updated(function ($borrowHistory) {
+        // //     if ($borrowHistory->instore('yes')) {
+        // //         $borrowHistory->book->increaseAvailableCopies($borrowHistory->borrowed_copies);
+        // //     }
+        // // });
+
+        // static::updated(function ($borrowHistory) {
+        //     Log::info('Updated event fired for borrowHistory id: ' . $borrowHistory->id);
+
+        //     if ($borrowHistory->instore === 'yes') {
+        //         Log::info('Increasing available copies for book id: ' . $borrowHistory->book->id);
+        //         Log::info('Increasing available copies by: ' . $borrowHistory->borrowed_copies);
+        //         $borrowHistory->book->increaseAvailableCopies($borrowHistory->borrowed_copies);
+        //     }
+        // });
     }
 
     public function library_patron(): BelongsTo
