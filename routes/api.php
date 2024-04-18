@@ -26,6 +26,6 @@ Route::group(['prefix' => 'api/v1', 'middleware' => ['auth:sanctum']], function 
     Route::apiResource('author', AuthorController::class);
     Route::apiResource('book', BookController::class);
     Route::apiResource('patron', LibraryPatronController::class);
-    Route::apiResource('borrower', BorrowHistoryController::class, ['except' => ['destroy', 'show']]);
-    Route::apiResource('attendance', AttendanceController::class, ['except' => ['destroy', 'show']]);
+    Route::apiResource('borrower', BorrowHistoryController::class);
+    Route::apiResource('attendance', AttendanceController::class);
 });
