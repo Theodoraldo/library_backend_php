@@ -16,7 +16,7 @@ class BorrowHistoryController extends Controller
     public function index()
     {
         try {
-            $borrowers = BorrowHistoryResource::collection(BorrowHistory::paginate());
+            $borrowers = BorrowHistoryResource::collection(BorrowHistory::with('book', 'library_patron', 'user')->paginate());
             return response($borrowers, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
@@ -56,19 +56,32 @@ class BorrowHistoryController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request, String $id)
     {
+        $validator = Validator::make($request->all(), [
+            'borrow_date' => 'required',
+            'book_id' => 'required',
+            'library_patron_id' => 'required',
+            'user_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response([
+                'error' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         try {
-            $obj = BorrowHistory::findOrFail($request->id);
-            $obj->update($request->all());
+            BorrowHistory::findOrFail($id)->update($request->all());
             if ($request->instore === 'yes') {
-                $obj->book->increaseAvailableCopies($obj->borrowed_copies);
+                $request->book->increaseAvailableCopies($request->borrowed_copies);
             }
-            return response('Borrowed book returned successfully !!!', Response::HTTP_OK);
+            return response('Borrowed book record updated successfully !!!', Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
     }
+
 
     public function destroy(String $id)
     {
