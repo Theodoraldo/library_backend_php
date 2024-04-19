@@ -16,14 +16,14 @@ class BorrowHistoryResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'bookId' => $this->book_id,
-            'patronId' => $this->patron_id,
-            'userId' => $this->user_id,
+            'borrowedCopies' => $this->borrowed_copies,
             'borrowDate' => $this->borrow_date,
             'returnDate' => $this->return_date,
             'bookState' => $this->book_state,
             'instore' => $this->instore,
             'comment' => $this->comment,
+            'book' => new BookResource($this->whenLoaded('book')),
+            'patron' => new LibraryPatronResource($this->whenLoaded('library_patron')),
         ];
     }
 }

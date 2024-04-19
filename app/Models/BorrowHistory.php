@@ -26,10 +26,6 @@ class BorrowHistory extends Model
         'book_state',
     ];
 
-    protected $hidden = [
-        '_method',
-    ];
-
     protected static function boot()
     {
         parent::boot();
