@@ -26,7 +26,7 @@ class BorrowHistoryController extends Controller
     public function show(String $id)
     {
         try {
-            $borrower = new BorrowHistoryResource(BorrowHistory::findOrFail($id));
+            $borrower = new BorrowHistoryResource(BorrowHistory::with('book', 'library_patron', 'user')->findOrFail($id));
             return response($borrower, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);

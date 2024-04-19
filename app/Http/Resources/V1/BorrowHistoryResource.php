@@ -24,6 +24,7 @@ class BorrowHistoryResource extends JsonResource
             'comment' => $this->comment,
             'book' => new BookResource($this->whenLoaded('book')),
             'patron' => new LibraryPatronResource($this->whenLoaded('library_patron')),
+            'user' => new UserResource($this->whenLoaded('user')),
         ];
     }
 }
