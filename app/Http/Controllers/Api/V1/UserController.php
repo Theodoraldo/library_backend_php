@@ -130,7 +130,7 @@ class UserController extends Controller
 
     public function signout(Request $request)
     {
-        $cookie = cookie('jwt', '', -1); // delete cookie
+        $cookie = cookie('jwt', '', -1);
 
         $request->user()->tokens()->delete();
 

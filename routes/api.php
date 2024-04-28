@@ -18,7 +18,7 @@ Route::get('/user', function (Request $request) {
 Route::controller(UserController::class)->group(function () {
     Route::post('/signup', 'signup');
     Route::post('/signin', 'signin');
-    Route::get('/signout', 'signout');
+    Route::get('/signout', 'signout')->middleware('auth:sanctum');
 });
 
 Route::group(['prefix' => 'api/v1', 'middleware' => ['auth:sanctum']], function () {
