@@ -9,7 +9,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Resources\V1\UserResource;
@@ -17,8 +16,6 @@ use Exception;
 
 class UserController extends Controller
 {
-    use HasApiTokens;
-
     public function index()
     {
         try {
@@ -82,8 +79,8 @@ class UserController extends Controller
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
-            $token = $request->user()->createToken('passport')->plainTextToken;
-            $cookie = cookie('jwt', $token, 60 * 24);
+            $token = $request->user()->createToken('passport', ['*'], now()->addWeek(1))->plainTextToken;
+            $cookie = cookie('jwt', $token, 60 * 24 * 7); // 1 week
         } catch (\Exception $e) {
             return response([
                 'error' => ['Request failed: ' . $e->getMessage(), 'code' => $e->getCode()]
@@ -131,11 +128,11 @@ class UserController extends Controller
         }
     }
 
-    public function signout()
+    public function signout(Request $request)
     {
         $cookie = cookie('jwt', '', -1); // delete cookie
 
-        // auth()->user()->tokens()->delete();
+        $request->user()->tokens()->delete();
 
         return response([
             'message' => 'User signed out successfully',
