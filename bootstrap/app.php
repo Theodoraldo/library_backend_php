@@ -16,12 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware('api')
                 ->group(base_path('routes/api.php'));
 
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
+            // Route::middleware('web')
+            //     ->group(base_path('routes/web.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
