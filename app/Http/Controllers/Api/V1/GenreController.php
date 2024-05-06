@@ -15,7 +15,7 @@ class GenreController extends Controller
     public function index()
     {
         try {
-            $genres = GenreResource::collection(Genre::paginate());
+            $genres = GenreResource::collection(Genre::orderBy('genre_name')->get());
             return response($genres, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
