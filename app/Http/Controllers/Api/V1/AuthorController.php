@@ -16,7 +16,7 @@ class AuthorController extends Controller
     public function index()
     {
         try {
-            $authors = AuthorResource::collection(Author::paginate());
+            $authors = AuthorResource::collection(Author::get());
             return response($authors, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
@@ -46,8 +46,10 @@ class AuthorController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
+            return response()->json([
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -73,7 +75,7 @@ class AuthorController extends Controller
                 'country' => $request->country,
                 'profile_picture' => $newImagePath,
             ]);
-            return response('Author created successfully !!!', Response::HTTP_CREATED);
+            return response()->json(['status' => Response::HTTP_CREATED, 'message' => 'Author created successfully !!!'], Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -92,8 +94,10 @@ class AuthorController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
+            return response()->json([
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -106,7 +110,7 @@ class AuthorController extends Controller
                 $newImagePath = $request->file('profile_picture');
             }
             Author::findOrFail($request->id)->update($request->all());
-            return response('Author updated successfully !!!', Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Author updated successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -116,7 +120,7 @@ class AuthorController extends Controller
     {
         try {
             Author::findOrFail($id)->delete();
-            return response('Author deleted successfully !!!', Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Author deleted successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }

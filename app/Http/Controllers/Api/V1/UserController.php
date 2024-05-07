@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Resources\V1\UserResource;
 use Exception;
+use App\Exceptions\ExceptionHandler;
 
 class UserController extends Controller
 {
@@ -22,7 +22,7 @@ class UserController extends Controller
             $users = UserResource::collection(User::paginate());
             return response()->json($users, Response::HTTP_OK);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Internal Server Error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return ExceptionHandler::handleException($e);
         }
     }
 
@@ -32,42 +32,44 @@ class UserController extends Controller
         try {
             $user = new UserResource(User::findOrFail($id));
             return response()->json($user, Response::HTTP_OK);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'User details not found'], Response::HTTP_NOT_FOUND);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Internal Server Error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return ExceptionHandler::handleException($e);
         }
     }
 
     public function signup(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|min:6|confirmed',
+            ]);
 
-        if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
-            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $defaultImagePath = 'default.png';
+            $newImagePath = date('Y-m-d_H-i-s') . '.png';
+
+            Storage::disk('images')->copy($defaultImagePath, $newImagePath);
+
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'image' => $newImagePath,
+            ]);
+
+            return response()->json(['status' => Response::HTTP_CREATED, 'message' => 'New mobile user created successfully'], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return ExceptionHandler::handleException($e);
         }
-
-        $defaultImagePath = 'default.png';
-        $newImagePath = date('Y-m-d_H-i-s') . '.png';
-
-        Storage::disk('images')->copy($defaultImagePath, $newImagePath);
-
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'image' => $newImagePath,
-        ]);
-
-        return response([
-            'message' => 'New mobile user created successfully',
-        ], Response::HTTP_CREATED);
     }
 
     public function signin(Request $request)
@@ -81,15 +83,14 @@ class UserController extends Controller
 
             $token = $request->user()->createToken('passport', ['*'], now()->addWeek(1))->plainTextToken;
             $cookie = cookie('jwt', $token, 60 * 24 * 7); // 1 week
+            return response([
+                'message' => $token,
+            ])->withCookie($cookie);
         } catch (\Exception $e) {
             return response([
                 'error' => ['Request failed: ' . $e->getMessage(), 'code' => $e->getCode()]
             ], Response::HTTP_BAD_REQUEST);
         }
-
-        return response([
-            'message' => $token,
-        ])->withCookie($cookie);
     }
 
     public function update(Request $request)
@@ -120,22 +121,22 @@ class UserController extends Controller
                 $user->image = $path;
             }
             $user->save();
-            return response()->json("User record updated successfully", Response::HTTP_OK);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'User details not found'], Response::HTTP_NOT_FOUND);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'User record updated successfully !!!'], Response::HTTP_OK);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Internal Server Error' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return ExceptionHandler::handleException($e);
         }
     }
 
     public function signout(Request $request)
     {
-        $cookie = cookie('jwt', '', -1);
+        try {
+            $cookie = cookie('jwt', '', -1);
 
-        $request->user()->tokens()->delete();
+            $request->user()->tokens()->delete();
 
-        return response([
-            'message' => 'User signed out successfully',
-        ])->withCookie($cookie);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'User signed out successfully !!!'], Response::HTTP_OK)->withCookie($cookie);
+        } catch (Exception $e) {
+            return ExceptionHandler::handleException($e);
+        }
     }
 }

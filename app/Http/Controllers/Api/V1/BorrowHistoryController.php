@@ -16,7 +16,7 @@ class BorrowHistoryController extends Controller
     public function index()
     {
         try {
-            $borrowers = BorrowHistoryResource::collection(BorrowHistory::with('book', 'library_patron', 'user')->paginate());
+            $borrowers = BorrowHistoryResource::collection(BorrowHistory::with('book', 'library_patron', 'user')->get());
             return response($borrowers, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
@@ -43,8 +43,10 @@ class BorrowHistoryController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
+            return response()->json([
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -52,7 +54,7 @@ class BorrowHistoryController extends Controller
             BorrowHistory::create($request->all());
             $book = Book::findOrFail($request->book_id);
             $book->decreaseAvailableCopies($request->borrowed_copies);
-            return response('Borrowed book issued successfully !!!', Response::HTTP_CREATED);
+            return response()->json(['status' => Response::HTTP_CREATED, 'message' => 'Borrowed book issued successfully !!!'], Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -67,7 +69,7 @@ class BorrowHistoryController extends Controller
             if ($request->instore === "yes") {
                 $updatedObj->increaseAvailableCopies($request->borrowed_copies);
             }
-            return response('Borrowed book record updated successfully !!!', Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Borrowed book record updated successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -78,7 +80,7 @@ class BorrowHistoryController extends Controller
     {
         try {
             BorrowHistory::findOrFail($id)->delete();
-            return response('Borrowed book record deleted successfully !!!', Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Borrowed book record deleted successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }

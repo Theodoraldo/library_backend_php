@@ -16,7 +16,7 @@ class BookController extends Controller
     public function index()
     {
         try {
-            $books = BookResource::collection(Book::paginate());
+            $books = BookResource::collection(Book::get());
             return response($books, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
@@ -43,8 +43,10 @@ class BookController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
+            return response()->json([
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -70,7 +72,7 @@ class BookController extends Controller
                 'cover_image' => $newImagePath,
                 'pages' => $request->pages,
             ]);
-            return response('New book created successfully !!!', Response::HTTP_CREATED);
+            return response()->json(['status' => Response::HTTP_CREATED, 'message' => 'New book created successfully !!!'], Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -86,8 +88,10 @@ class BookController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
+            return response()->json([
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -100,7 +104,7 @@ class BookController extends Controller
                 $newImagePath = $request->file('profile_picture');
             }
             Book::findOrFail($request->id)->update($request->all());
-            return response('Book record updated successfully !!!', Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Book record updated successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -110,7 +114,7 @@ class BookController extends Controller
     {
         try {
             Book::findOrFail($id)->delete();
-            return response('Book record deleted successfully !!!', Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Book record deleted successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }

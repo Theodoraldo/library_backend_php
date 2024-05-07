@@ -48,14 +48,16 @@ class LibraryPatronController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
+            return response()->json([
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         try {
             LibraryPatron::create($request->all());
-            return response('Library Patron created successfully !!!', Response::HTTP_CREATED);
+            return response()->json(['status' => Response::HTTP_CREATED, 'message' => 'Library Patron created successfully !!!'], Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -77,14 +79,16 @@ class LibraryPatronController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
+            return response()->json([
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         try {
             LibraryPatron::findOrFail($request->id)->update($request->all());
-            return response('Library Patron record updated successfully !!!', Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Library Patron record updated successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -94,7 +98,7 @@ class LibraryPatronController extends Controller
     {
         try {
             LibraryPatron::findOrFail($id)->delete();
-            return response('Patron deleted successfully !!!', Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Patron deleted successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }

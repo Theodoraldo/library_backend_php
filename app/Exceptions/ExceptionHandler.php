@@ -58,6 +58,6 @@ class ExceptionHandler extends Exception
                 break;
         }
 
-        return response(['error' => $customErrorMessage, 'code' => $statusCode], $statusCode);
+        return response()->json(['status' => $statusCode, 'message' => $customErrorMessage], $statusCode);
     }
 }

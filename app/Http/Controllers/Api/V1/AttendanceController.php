@@ -15,7 +15,7 @@ class AttendanceController extends Controller
     public function index()
     {
         try {
-            $attendances = AttendanceResource::collection(Attendance::paginate());
+            $attendances = AttendanceResource::collection(Attendance::get());
             return response($attendances, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
@@ -40,8 +40,10 @@ class AttendanceController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
+            return response()->json([
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -51,7 +53,7 @@ class AttendanceController extends Controller
                 'check_out' =>  $request->check_out,
                 'library_patron_id' => $request->library_patron_id,
             ]);
-            return response('Patron checked-in successfully !!!', Response::HTTP_CREATED);
+            return response()->json(['status' => Response::HTTP_CREATED, 'message' => 'Patron checked-in successfully !!!'], Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -65,14 +67,16 @@ class AttendanceController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response([
-                'error' => $validator->errors(),
+            return response()->json([
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         try {
             Attendance::findOrFail($request->id)->update($request->all());
-            return response('Patron checked-out successfully  !!!', Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Patron checked-out successfully  !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -82,7 +86,7 @@ class AttendanceController extends Controller
     {
         try {
             Attendance::findOrFail($id)->delete();
-            return response('Record deleted successfully !!!', Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Record deleted successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
