@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\LibraryPatronController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\CheckAdminRole;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -22,10 +23,14 @@ Route::controller(UserController::class)->group(function () {
 });
 
 Route::group(['prefix' => 'api/v1', 'middleware' => ['auth:sanctum']], function () {
-    Route::apiResource('/genre', GenreController::class);
-    Route::apiResource('author', AuthorController::class);
-    Route::apiResource('book', BookController::class);
-    Route::apiResource('patron', LibraryPatronController::class);
+    Route::apiResource('genre', GenreController::class)->except(['destroy']);
+    Route::apiResource('genre', GenreController::class)->middleware(CheckAdminRole::class)->only(['destroy']);
+    Route::apiResource('author', AuthorController::class)->except(['destroy']);
+    Route::apiResource('author', AuthorController::class)->middleware(CheckAdminRole::class)->only(['destroy']);
+    Route::apiResource('book', BookController::class)->except(['destroy']);
+    Route::apiResource('book', BookController::class)->middleware(CheckAdminRole::class)->only(['destroy']);
+    Route::apiResource('patron', LibraryPatronController::class)->except(['destroy']);
+    Route::apiResource('patron', LibraryPatronController::class)->middleware(CheckAdminRole::class)->only(['destroy']);
     Route::apiResource('borrower', BorrowHistoryController::class);
     Route::apiResource('attendance', AttendanceController::class);
 });
