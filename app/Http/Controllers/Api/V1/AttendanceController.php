@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Exceptions\ExceptionHandler;
 use App\Models\Attendance;
 use App\Http\Resources\V1\AttendanceResource;
+use App\Models\LibraryPatron;
 use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
@@ -48,11 +49,9 @@ class AttendanceController extends Controller
         }
 
         try {
-            Attendance::create([
-                'check_in' => $request->check_in,
-                'check_out' =>  $request->check_out,
-                'library_patron_id' => $request->library_patron_id,
-            ]);
+            Attendance::create($request->all());
+            $patron = LibraryPatron::findOrFail($request->library_patron_id);
+            $patron->changeEngagementStatus("yes");
             return response()->json(['status' => Response::HTTP_CREATED, 'message' => 'Patron checked-in successfully !!!'], Response::HTTP_CREATED);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
