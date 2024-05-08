@@ -24,6 +24,7 @@ class LibraryPatronResource extends JsonResource
             'city' => $this->city,
             'state' => $this->state,
             'location' => $this->location,
+            'engagement' => $this->engagement,
             'identityCard' => $this->identity_card,
             'identityNumber' => $this->identity_no,
         ];
