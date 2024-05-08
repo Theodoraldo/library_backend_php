@@ -16,6 +16,6 @@ class CheckAdminRole
             return $next($request);
         }
 
-        return response()->json(['status' => Response::HTTP_FORBIDDEN, 'message' => 'Ooooooop!!! you are not permitted or authorized to undertake this action. Sorry contact the Admin on theodoraldo@gmail.com !!!'], Response::HTTP_FORBIDDEN);
+        return response()->json(['status' => Response::HTTP_FORBIDDEN, 'message' => 'Sorry you are not permitted to undertake this action. Contact the Admin on theodoraldo@gmail.com !!!'], Response::HTTP_FORBIDDEN);
     }
 }
