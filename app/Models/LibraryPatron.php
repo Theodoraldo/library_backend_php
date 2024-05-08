@@ -25,6 +25,12 @@ class LibraryPatron extends Model
         'identity_no',
     ];
 
+    public function changeEngagementStatus($status)
+    {
+        $this->engagement = $status;
+        $this->save();
+    }
+
     public function borrowHistories(): HasMany
     {
         return $this->hasMany(BorrowHistory::class);
