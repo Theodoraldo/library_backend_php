@@ -76,8 +76,9 @@ class UserController extends Controller
     {
         try {
             if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                return response([
-                    'error' => ['Invalid credentials']
+                return response()->json([
+                    'status' => Response::HTTP_UNAUTHORIZED,
+                    'message' => 'Invalid credentials',
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
@@ -87,9 +88,7 @@ class UserController extends Controller
                 'message' => $token,
             ])->withCookie($cookie);
         } catch (\Exception $e) {
-            return response([
-                'error' => ['Request failed: ' . $e->getMessage(), 'code' => $e->getCode()]
-            ], Response::HTTP_BAD_REQUEST);
+            return ExceptionHandler::handleException($e);
         }
     }
 
@@ -103,8 +102,10 @@ class UserController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response([
-                    'error' => $validator->errors(),
+                return response()->json([
+                    'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
                 ], Response::HTTP_UNPROCESSABLE_ENTITY);
             }
 
