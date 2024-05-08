@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('location');
             $table->string('identity_card');
             $table->string('identity_no')->unique();
-            $table->boolean('engagement')->default(false);
+            $table->enum('engagement', ['yes', 'no'])->default('no');
             $table->timestamps();
         });
     }
