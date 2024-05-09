@@ -69,8 +69,7 @@ class AttendanceController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'check_in' => 'required',
-            'library_patron_id' => 'required',
+            'check_out' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -82,7 +81,11 @@ class AttendanceController extends Controller
         }
 
         try {
-            Attendance::findOrFail($request->id)->update($request->all());
+            $attendance = Attendance::findOrFail($request->id);
+            $attendance->update($request->all());
+
+            $patron = LibraryPatron::findOrFail($attendance->library_patron_id);
+            $patron->changeEngagementStatus("no");
             return response()->json(['status' => Response::HTTP_OK, 'message' => 'Patron checked-out successfully  !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
