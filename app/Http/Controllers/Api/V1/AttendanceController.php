@@ -9,15 +9,23 @@ use App\Exceptions\ExceptionHandler;
 use App\Models\Attendance;
 use App\Http\Resources\V1\AttendanceResource;
 use App\Models\LibraryPatron;
+use App\Services\V1\AttendanceFilterQuery;
 use Illuminate\Support\Facades\Validator;
 
 class AttendanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $attendances = AttendanceResource::collection(Attendance::get());
-            return response($attendances, Response::HTTP_OK);
+            $query = new AttendanceFilterQuery();
+            $filterQuery = $query->transform($request);
+            if (count($filterQuery) == 0) {
+                $attendances = AttendanceResource::collection(Attendance::get());
+                return response()->json($attendances, Response::HTTP_OK);
+            } else {
+                $attendances = AttendanceResource::collection(Attendance::where($filterQuery)->get());
+                return response()->json($attendances, Response::HTTP_OK);
+            }
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
