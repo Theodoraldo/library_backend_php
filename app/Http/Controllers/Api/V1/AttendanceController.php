@@ -35,7 +35,7 @@ class AttendanceController extends Controller
     {
         try {
             $attendance = new AttendanceResource(Attendance::findOrFail($id));
-            return response($attendance, Response::HTTP_OK);
+            return response()->json($attendance, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }

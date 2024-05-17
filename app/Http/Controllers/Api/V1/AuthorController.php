@@ -17,7 +17,7 @@ class AuthorController extends Controller
     {
         try {
             $authors = AuthorResource::collection(Author::get());
-            return response($authors, Response::HTTP_OK);
+            return response()->json($authors, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -27,7 +27,7 @@ class AuthorController extends Controller
     {
         try {
             $author = new AuthorResource(Author::findOrFail($id));
-            return response($author, Response::HTTP_OK);
+            return response()->json($author, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
