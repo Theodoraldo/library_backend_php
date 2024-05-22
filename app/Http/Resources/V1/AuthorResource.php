@@ -25,6 +25,7 @@ class AuthorResource extends JsonResource
             'state' => $this->state,
             'country' => $this->country,
             'profilePicture' => $this->profile_picture,
+
         ];
     }
 }

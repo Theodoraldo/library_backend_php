@@ -43,6 +43,7 @@ class AuthorController extends Controller
             'city' => 'required',
             'state' => 'required',
             'country' => 'required',
+            'profile_picture' => 'image|max:250'
         ]);
 
         if ($validator->fails()) {
@@ -81,7 +82,7 @@ class AuthorController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'firstname' => 'required',
@@ -91,6 +92,7 @@ class AuthorController extends Controller
             'city' => 'required',
             'state' => 'required',
             'country' => 'required',
+            'profile_picture' => 'image|max:250'
         ]);
 
         if ($validator->fails()) {
@@ -102,14 +104,27 @@ class AuthorController extends Controller
         }
 
         try {
-            if ($request->hasFile('profile_picture')) {
+            if ($request->profile_picture) {
+                $getData = Author::findOrFail($id);
+                Storage::delete($getData->profile_picture);
                 $image = $request->file('profile_picture');
                 $newImagePath = date('Y-m-d_H-i-s') . '.' . $image->getClientOriginalExtension();
                 Storage::disk('images')->put($newImagePath, file_get_contents($image));
+
+                Author::findOrFail($id)->update([
+                    'firstname' => $request->firstname,
+                    'lastname' =>  $request->lastname,
+                    'email' => $request->email,
+                    'address' => $request->address,
+                    'phone_number' => $request->phone_number,
+                    'city' => $request->city,
+                    'state' => $request->state,
+                    'country' => $request->country,
+                    'profile_picture' => $newImagePath,
+                ]);
             } else {
-                $newImagePath = $request->file('profile_picture');
+                Author::findOrFail($id)->update($request->all());
             }
-            Author::findOrFail($request->id)->update($request->all());
             return response()->json(['status' => Response::HTTP_OK, 'message' => 'Author updated successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
