@@ -17,7 +17,7 @@ class BookController extends Controller
     {
         try {
             $books = BookResource::collection(Book::get());
-            return response($books, Response::HTTP_OK);
+            return response()->json($books, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -27,7 +27,7 @@ class BookController extends Controller
     {
         try {
             $book = new BookResource(Book::findOrFail($id));
-            return response($book, Response::HTTP_OK);
+            return response()->json($book, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -51,8 +51,8 @@ class BookController extends Controller
         }
 
         try {
-            if ($request->hasFile('profile_picture')) {
-                $image = $request->file('profile_picture');
+            if ($request->hasFile('cover_image')) {
+                $image = $request->file('cover_image');
                 $newImagePath = date('Y-m-d_H-i-s') . '.' . $image->getClientOriginalExtension();
                 Storage::disk('images')->put($newImagePath, file_get_contents($image));
             } else {
@@ -78,13 +78,14 @@ class BookController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required',
             'author_id' => 'required',
             'genre_id' => 'required',
             'available_copies' => 'required',
+            'cover_image' => 'image|max:250'
         ]);
 
         if ($validator->fails()) {
@@ -96,14 +97,27 @@ class BookController extends Controller
         }
 
         try {
-            if ($request->hasFile('profile_picture')) {
-                $image = $request->file('profile_picture');
+            if ($request->cover_image) {
+                $getData = Book::findOrFail($id);
+                Storage::delete($getData->cover_image);
+                $image = $request->file('cover_image');
                 $newImagePath = date('Y-m-d_H-i-s') . '.' . $image->getClientOriginalExtension();
                 Storage::disk('images')->put($newImagePath, file_get_contents($image));
+
+                Book::findOrFail($id)->update([
+                    'title' => $request->title,
+                    'author_id' => $request->author_id,
+                    'genre_id' => $request->genre_id,
+                    'notes' => $request->notes,
+                    'published_date' => $request->published_date,
+                    'available_copies' => $request->available_copies,
+                    'cover_image' => $newImagePath,
+                    'pages' => $request->pages,
+                ]);
             } else {
-                $newImagePath = $request->file('profile_picture');
+
+                Book::findOrFail($request->id)->update($request->all());
             }
-            Book::findOrFail($request->id)->update($request->all());
             return response()->json(['status' => Response::HTTP_OK, 'message' => 'Book record updated successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
