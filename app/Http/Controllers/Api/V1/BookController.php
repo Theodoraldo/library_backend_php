@@ -116,7 +116,7 @@ class BookController extends Controller
                 ]);
             } else {
 
-                Book::findOrFail($request->id)->update($request->all());
+                Book::findOrFail($id)->update($request->all());
             }
             return response()->json(['status' => Response::HTTP_OK, 'message' => 'Book record updated successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
