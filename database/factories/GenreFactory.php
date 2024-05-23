@@ -100,7 +100,11 @@ class GenreFactory extends Factory
         [
             'genre_name' => 'Business/Finance',
             'description' => 'Content related to business, finance, and economic principles.',
-        ]
+        ],
+        [
+            'genre_name' => 'Programming',
+            'description' => 'Books that provide knowledge about various programming languages, concepts, and technologies, as well as Data structures.',
+        ],
     ];
 
 
