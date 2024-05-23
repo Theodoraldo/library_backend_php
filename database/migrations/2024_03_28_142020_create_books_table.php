@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('available_copies');
             $table->string('cover_image')->nullable();
             $table->integer('pages');
-            $table->string('notes')->nullable();
+            $table->string('notes', 500)->nullable();
             $table->unsignedBigInteger('author_id')->constrained();
             $table->unsignedBigInteger('genre_id')->constrained();
             $table->timestamps();
