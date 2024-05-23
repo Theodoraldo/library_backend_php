@@ -43,7 +43,6 @@ class AuthorController extends Controller
             'city' => 'required',
             'state' => 'required',
             'country' => 'required',
-            'profile_picture' => 'image|max:250'
         ]);
 
         if ($validator->fails()) {
