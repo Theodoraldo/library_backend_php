@@ -40,6 +40,7 @@ class BorrowHistoryController extends Controller
             'book_id' => 'required',
             'library_patron_id' => 'required',
             'user_id' => 'required',
+            'borrowed_copies' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -51,10 +52,14 @@ class BorrowHistoryController extends Controller
         }
 
         try {
-            BorrowHistory::create($request->all());
             $book = Book::findOrFail($request->book_id);
-            $book->decreaseAvailableCopies($request->borrowed_copies);
-            return response()->json(['status' => Response::HTTP_CREATED, 'message' => 'Borrowed book issued successfully !!!'], Response::HTTP_CREATED);
+            if (intval($request->borrowed_copies) > intval($book->available_copies)) {
+                return response()->json(['status' => Response::HTTP_UNPROCESSABLE_ENTITY, 'message' => 'Quantity cannot be greater than stock quantity !!!'], Response::HTTP_UNPROCESSABLE_ENTITY);
+            } else {
+                BorrowHistory::create($request->all());
+                $book->decreaseAvailableCopies($request->borrowed_copies);
+                return response()->json(['status' => Response::HTTP_CREATED, 'message' => 'Borrowed book issued successfully !!!'], Response::HTTP_CREATED);
+            }
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }

@@ -4,6 +4,7 @@ namespace App\Http\Resources\V1;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use DateTime;
 
 class BorrowHistoryResource extends JsonResource
 {
@@ -17,8 +18,8 @@ class BorrowHistoryResource extends JsonResource
         return [
             'id' => $this->id,
             'borrowedCopies' => $this->borrowed_copies,
-            'borrowDate' => $this->borrow_date,
-            'returnDate' => $this->return_date,
+            'borrowDate' => (new DateTime($this->borrow_date))->format('Y-m-d'),
+            'returnDate' => $this->return_date ? (new DateTime($this->return_date))->format('Y-m-d') : null,
             'bookState' => $this->book_state,
             'instore' => $this->instore,
             'comment' => $this->comment,
