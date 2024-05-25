@@ -14,6 +14,15 @@ class Book extends Model
 {
     use HasFactory;
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($book) {
+            $book->borrow_history()->delete();
+        });
+    }
+
     protected $fillable = [
         'title',
         'author_id',

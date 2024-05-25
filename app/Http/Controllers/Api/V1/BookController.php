@@ -127,7 +127,9 @@ class BookController extends Controller
     public function destroy(String $id)
     {
         try {
-            Book::findOrFail($id)->delete();
+            $book = Book::findOrFail($id);
+            Storage::delete($book->cover_image);
+            $book->delete();
             return response()->json(['status' => Response::HTTP_OK, 'message' => 'Book record deleted successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
