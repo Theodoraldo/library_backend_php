@@ -13,10 +13,19 @@ use App\Models\Book;
 
 class BorrowHistoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $borrowers = BorrowHistoryResource::collection(BorrowHistory::with('book', 'library_patron', 'user')->get());
+            $borrowers = BorrowHistoryResource::collection(BorrowHistory::with('book', 'library_patron', 'user')
+                ->when($request->has(['bsDate', 'beDate']), function ($borrowers) use ($request) {
+                    $borrowers->whereBetween('borrow_date', [$request->bsDate, $request->beDate]);
+                })->when($request->has(['rsDate', 'reDate']), function ($borrowers) use ($request) {
+                    $borrowers->whereBetween('return_date', [$request->startDate, $request->endDate]);
+                })->when($request->rdate === 'null', function ($borrowers) {
+                    $borrowers->whereNull('return_date');
+                })
+                ->orderBy('created_at', 'desc')
+                ->get());
             return response($borrowers, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
@@ -74,7 +83,7 @@ class BorrowHistoryController extends Controller
             if ($request->instore === "yes") {
                 $updatedObj->increaseAvailableCopies($request->borrowed_copies);
             }
-            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Borrowed book record updated successfully !!!'], Response::HTTP_OK);
+            return response()->json(['status' => Response::HTTP_OK, 'message' => 'Borrowed book returned successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
