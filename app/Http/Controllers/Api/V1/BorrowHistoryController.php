@@ -77,12 +77,13 @@ class BorrowHistoryController extends Controller
     public function update(Request $request, String $id)
     {
         try {
-            BorrowHistory::findOrFail($id)->update($request->all());
-            $updatedObj = Book::findOrFail($request->book_id);
+            $borrowHistory = BorrowHistory::findOrFail($id);
+            $borrowHistory->update($request->all());
 
             if ($request->instore === "yes") {
-                $updatedObj->increaseAvailableCopies($request->borrowed_copies);
+                $borrowHistory->book->increaseAvailableCopies($request->borrowed_copies);
             }
+
             return response()->json(['status' => Response::HTTP_OK, 'message' => 'Borrowed book returned successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
