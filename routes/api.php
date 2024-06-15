@@ -33,4 +33,7 @@ Route::group(['prefix' => 'api/v1', 'middleware' => ['auth:sanctum']], function 
     Route::apiResource('patron', LibraryPatronController::class)->middleware(CheckAdminRole::class)->only(['destroy']);
     Route::apiResource('borrower', BorrowHistoryController::class);
     Route::apiResource('attendance', AttendanceController::class);
+
+    // Created purposely for reports
+    Route::get('most-book', [BorrowHistoryController::class, 'getLatestBookBorrowed']);
 });
