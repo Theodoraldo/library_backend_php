@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Exceptions\ExceptionHandler;
 use App\Http\Resources\V1\BorrowHistoryResource;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use App\Models\BorrowHistory;
 use App\Models\Book;
 
@@ -90,12 +91,29 @@ class BorrowHistoryController extends Controller
         }
     }
 
-
     public function destroy(String $id)
     {
         try {
             BorrowHistory::findOrFail($id)->delete();
             return response()->json(['status' => Response::HTTP_OK, 'message' => 'Borrowed book record deleted successfully !!!'], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return ExceptionHandler::handleException($e);
+        }
+    }
+
+    public function getLatestBookBorrowed()
+    {
+        try {
+            $result = BorrowHistory::select('book_id', DB::raw('SUM(borrowed_copies) as COUNT_Borrowed'))
+                ->groupBy('book_id')
+                ->orderBy('COUNT_Borrowed', 'desc')
+                ->with(['book' => function ($query) {
+                    $query->select('id', 'title');
+                }])
+                ->limit(5)
+                ->get();
+
+            return response()->json($result, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
