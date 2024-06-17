@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\BorrowHistory;
 use App\Models\Book;
+use Carbon\Carbon;
 
 class BorrowHistoryController extends Controller
 {
@@ -101,7 +102,7 @@ class BorrowHistoryController extends Controller
         }
     }
 
-    public function getLatestBookBorrowed()
+    public function getMostBooksBorrowed()
     {
         try {
             $result = BorrowHistory::select('book_id', DB::raw('SUM(borrowed_copies) as COUNT_Borrowed'))
@@ -114,6 +115,26 @@ class BorrowHistoryController extends Controller
                 ->get();
 
             return response()->json($result, Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return ExceptionHandler::handleException($e);
+        }
+    }
+
+    public function getMonthlyBooksBorrowed()
+    {
+        try {
+            $currentYear = Carbon::now()->year;
+
+            $borrowedBooksByMonth = BorrowHistory::selectRaw('MONTH(borrow_date) as month, SUM(borrowed_copies) as total_borrowed')
+                ->whereYear('borrow_date', $currentYear)
+                ->groupByRaw('MONTH(borrow_date)')
+                ->orderByRaw('MONTH(borrow_date)')
+                ->get()
+                ->map(function ($record) {
+                    $record->month = date('F', mktime(0, 0, 0, $record->month, 10));
+                    return $record;
+                });
+            return response()->json($borrowedBooksByMonth, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }

@@ -35,5 +35,6 @@ Route::group(['prefix' => 'api/v1', 'middleware' => ['auth:sanctum']], function 
     Route::apiResource('attendance', AttendanceController::class);
 
     // Created purposely for reports
-    Route::get('most-book', [BorrowHistoryController::class, 'getLatestBookBorrowed']);
+    Route::get('most-book', [BorrowHistoryController::class, 'getMostBooksBorrowed']);
+    Route::get('monthly-book', [BorrowHistoryController::class, 'getMonthlyBooksBorrowed']);
 });
