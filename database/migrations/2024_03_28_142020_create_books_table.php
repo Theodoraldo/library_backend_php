@@ -23,6 +23,8 @@ return new class extends Migration
             $table->unsignedBigInteger('genre_id')->constrained();
             $table->timestamps();
 
+            $table->index('published_date');
+
             $table->foreign('author_id')->references('id')->on('authors');
             $table->foreign('genre_id')->references('id')->on('genres');
         });

@@ -18,6 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('library_patron_id')->constrained();
             $table->timestamps();
 
+            $table->index(['check_in', 'check_out']);
+
             $table->foreign('library_patron_id')->references('id')->on('library_patrons');
         });
     }

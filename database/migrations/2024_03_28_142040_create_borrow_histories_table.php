@@ -25,6 +25,8 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->constrained();
             $table->timestamps();
 
+            $table->index(['borrow_date', 'return_date']);
+
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('library_patron_id')->references('id')->on('library_patrons');
             $table->foreign('book_id')->references('id')->on('books');
