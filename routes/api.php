@@ -11,30 +11,109 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\CheckAdminRole;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Route::get("/user", function (Request $request) {
+//     return $request->user();
+// })->middleware("auth:sanctum");
 
-// User signup, login and logout
-Route::controller(UserController::class)->group(function () {
-    Route::post('/signup', 'signup');
-    Route::post('/signin', 'signin');
-    Route::post('/signout', 'signout')->middleware('auth:sanctum');
-});
+// // User signup, login and logout
+// Route::controller(UserController::class)->group(function () {
+//     Route::post("/signup", "signup");
+//     Route::post("/signin", "signin");
+//     Route::post("/signout", "signout")->middleware("auth:sanctum");
+// });
 
-Route::group(['prefix' => 'api/v1', 'middleware' => ['auth:sanctum']], function () {
-    Route::apiResource('genre', GenreController::class)->except(['destroy']);
-    Route::apiResource('genre', GenreController::class)->middleware(CheckAdminRole::class)->only(['destroy']);
-    Route::apiResource('author', AuthorController::class)->except(['destroy']);
-    Route::apiResource('author', AuthorController::class)->middleware(CheckAdminRole::class)->only(['destroy']);
-    Route::apiResource('book', BookController::class)->except(['destroy']);
-    Route::apiResource('book', BookController::class)->middleware(CheckAdminRole::class)->only(['destroy']);
-    Route::apiResource('patron', LibraryPatronController::class)->except(['destroy']);
-    Route::apiResource('patron', LibraryPatronController::class)->middleware(CheckAdminRole::class)->only(['destroy']);
-    Route::apiResource('borrower', BorrowHistoryController::class);
-    Route::apiResource('attendance', AttendanceController::class);
+// Route::group(
+//     ["prefix" => "api/v1", "middleware" => ["auth:sanctum"]],
+//     function () {
+//         Route::apiResource("genre", GenreController::class)->except([
+//             "destroy",
+//         ]);
+//         Route::apiResource("genre", GenreController::class)
+//             ->middleware(CheckAdminRole::class)
+//             ->only(["destroy"]);
+//         Route::apiResource("author", AuthorController::class)->except([
+//             "destroy",
+//         ]);
+//         Route::apiResource("author", AuthorController::class)
+//             ->middleware(CheckAdminRole::class)
+//             ->only(["destroy"]);
+//         Route::apiResource("book", BookController::class)->except(["destroy"]);
+//         Route::apiResource("book", BookController::class)
+//             ->middleware(CheckAdminRole::class)
+//             ->only(["destroy"]);
+//         Route::apiResource("patron", LibraryPatronController::class)->except([
+//             "destroy",
+//         ]);
+//         Route::apiResource("patron", LibraryPatronController::class)
+//             ->middleware(CheckAdminRole::class)
+//             ->only(["destroy"]);
+//         Route::apiResource("borrower", BorrowHistoryController::class);
+//         Route::apiResource("attendance", AttendanceController::class);
 
-    // Created purposely for reports
-    Route::get('most-book', [BorrowHistoryController::class, 'getMostBooksBorrowed']);
-    Route::get('monthly-book', [BorrowHistoryController::class, 'getMonthlyBooksBorrowed']);
+//         // Created purposely for reports
+//         Route::get("most-book", [
+//             BorrowHistoryController::class,
+//             "getMostBooksBorrowed",
+//         ]);
+//         Route::get("monthly-book", [
+//             BorrowHistoryController::class,
+//             "getMonthlyBooksBorrowed",
+//         ]);
+//     },
+// );
+
+Route::prefix("api/v1")->group(function () {
+    // ✅ Public routes (no auth)
+    Route::controller(UserController::class)->group(function () {
+        Route::post("/signup", "signup");
+        Route::post("/signin", "signin");
+    });
+
+    // ✅ Protected routes
+    Route::middleware("auth:sanctum")->group(function () {
+        Route::post("/signout", [UserController::class, "signout"]);
+
+        Route::get("/user", function (Request $request) {
+            return $request->user();
+        });
+
+        Route::apiResource("genre", GenreController::class)->except([
+            "destroy",
+        ]);
+        Route::apiResource("genre", GenreController::class)
+            ->middleware(CheckAdminRole::class)
+            ->only(["destroy"]);
+
+        Route::apiResource("author", AuthorController::class)->except([
+            "destroy",
+        ]);
+        Route::apiResource("author", AuthorController::class)
+            ->middleware(CheckAdminRole::class)
+            ->only(["destroy"]);
+
+        Route::apiResource("book", BookController::class)->except(["destroy"]);
+        Route::apiResource("book", BookController::class)
+            ->middleware(CheckAdminRole::class)
+            ->only(["destroy"]);
+
+        Route::apiResource("patron", LibraryPatronController::class)->except([
+            "destroy",
+        ]);
+        Route::apiResource("patron", LibraryPatronController::class)
+            ->middleware(CheckAdminRole::class)
+            ->only(["destroy"]);
+
+        Route::apiResource("borrower", BorrowHistoryController::class);
+        Route::apiResource("attendance", AttendanceController::class);
+
+        // Reports
+        Route::get("most-book", [
+            BorrowHistoryController::class,
+            "getMostBooksBorrowed",
+        ]);
+        Route::get("monthly-book", [
+            BorrowHistoryController::class,
+            "getMonthlyBooksBorrowed",
+        ]);
+    });
 });
