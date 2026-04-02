@@ -26,8 +26,7 @@ class UserController extends Controller
         }
     }
 
-
-    public function show(String $id)
+    public function show(string $id)
     {
         try {
             $user = new UserResource(User::findOrFail($id));
@@ -41,32 +40,41 @@ class UserController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:6|confirmed',
+                "name" => "required",
+                "email" => "required|email|unique:users",
+                "password" => "required|min:6|confirmed",
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                return response()->json(
+                    [
+                        "status" => Response::HTTP_UNPROCESSABLE_ENTITY,
+                        "message" => "Validation failed",
+                        "errors" => $validator->errors(),
+                    ],
+                    Response::HTTP_UNPROCESSABLE_ENTITY,
+                );
             }
 
-            $defaultImagePath = 'default.png';
-            $newImagePath = date('Y-m-d_H-i-s') . '.png';
+            $defaultImagePath = "default.png";
+            $newImagePath = date("Y-m-d_H-i-s") . ".png";
 
-            Storage::disk('images')->copy($defaultImagePath, $newImagePath);
+            Storage::disk("images")->copy($defaultImagePath, $newImagePath);
 
             User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'image' => $newImagePath,
+                "name" => $request->name,
+                "email" => $request->email,
+                "password" => Hash::make($request->password),
+                "image" => $newImagePath,
             ]);
 
-            return response()->json(['status' => Response::HTTP_CREATED, 'message' => 'New mobile user created successfully'], Response::HTTP_CREATED);
+            return response()->json(
+                [
+                    "status" => Response::HTTP_CREATED,
+                    "message" => "New mobile user created successfully",
+                ],
+                Response::HTTP_CREATED,
+            );
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -75,18 +83,28 @@ class UserController extends Controller
     public function signin(Request $request)
     {
         try {
-            if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-                return response()->json([
-                    'status' => Response::HTTP_UNAUTHORIZED,
-                    'message' => 'Invalid credentials',
-                ], Response::HTTP_UNAUTHORIZED);
+            if (
+                !Auth::attempt([
+                    "email" => $request->email,
+                    "password" => $request->password,
+                ])
+            ) {
+                return response()->json(
+                    [
+                        "status" => Response::HTTP_UNAUTHORIZED,
+                        "message" => "Invalid credentials",
+                    ],
+                    Response::HTTP_UNAUTHORIZED,
+                );
             }
 
-            $token = $request->user()->createToken('passport', ['*'], now()->addWeek(1))->plainTextToken;
-            $cookie = cookie('jwt', $token, 60 * 24 * 7); // 1 week
+            $token = $request
+                ->user()
+                ->createToken("passport", ["*"], now()->addWeek(1))
+                ->plainTextToken;
             return response([
-                'message' => $token,
-            ])->withCookie($cookie);
+                "message" => $token,
+            ]);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -98,31 +116,49 @@ class UserController extends Controller
             $user = User::findOrFail($request->id);
 
             $validator = Validator::make($request->all(), [
-                'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                "image" => "image|mimes:jpeg,png,jpg,gif,svg|max:2048",
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                    'message' => 'Validation failed',
-                    'errors' => $validator->errors()
-                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+                return response()->json(
+                    [
+                        "status" => Response::HTTP_UNPROCESSABLE_ENTITY,
+                        "message" => "Validation failed",
+                        "errors" => $validator->errors(),
+                    ],
+                    Response::HTTP_UNPROCESSABLE_ENTITY,
+                );
             }
 
-            $data = $request->except(['image', 'type', 'password', 'email', 'name']);
+            $data = $request->except([
+                "image",
+                "type",
+                "password",
+                "email",
+                "name",
+            ]);
             $user->fill($data);
 
-            if ($request->hasFile('image')) {
-                if ($user->image && Storage::disk('images')->exists($user->image)) {
-                    Storage::disk('images')->delete($user->image);
+            if ($request->hasFile("image")) {
+                if (
+                    $user->image &&
+                    Storage::disk("images")->exists($user->image)
+                ) {
+                    Storage::disk("images")->delete($user->image);
                 }
-                $image = $request->file('image');
+                $image = $request->file("image");
                 $imageName = $image->getClientOriginalName();
-                $path = $image->storeAs('/', $imageName, 'images');
+                $path = $image->storeAs("/", $imageName, "images");
                 $user->image = $path;
             }
             $user->save();
-            return response()->json(['status' => Response::HTTP_OK, 'message' => 'User record updated successfully !!!'], Response::HTTP_OK);
+            return response()->json(
+                [
+                    "status" => Response::HTTP_OK,
+                    "message" => "User record updated successfully !!!",
+                ],
+                Response::HTTP_OK,
+            );
         } catch (Exception $e) {
             return ExceptionHandler::handleException($e);
         }
@@ -131,11 +167,19 @@ class UserController extends Controller
     public function signout(Request $request)
     {
         try {
-            $cookie = cookie('jwt', '', -1);
+            $cookie = cookie("jwt", "", -1);
 
             $request->user()->tokens()->delete();
 
-            return response()->json(['status' => Response::HTTP_OK, 'message' => 'User signed out successfully !!!'], Response::HTTP_OK)->withCookie($cookie);
+            return response()
+                ->json(
+                    [
+                        "status" => Response::HTTP_OK,
+                        "message" => "User signed out successfully !!!",
+                    ],
+                    Response::HTTP_OK,
+                )
+                ->withCookie($cookie);
         } catch (Exception $e) {
             return ExceptionHandler::handleException($e);
         }
