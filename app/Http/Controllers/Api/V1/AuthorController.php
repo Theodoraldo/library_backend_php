@@ -133,7 +133,9 @@ class AuthorController extends Controller
     public function destroy(String $id)
     {
         try {
-            Author::findOrFail($id)->delete();
+            $author = Author::findOrFail($id);
+            Storage::delete($author->profile_picture);
+            $author->delete();
             return response()->json(['status' => Response::HTTP_OK, 'message' => 'Author deleted successfully !!!'], Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
