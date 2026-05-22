@@ -105,9 +105,12 @@ class BorrowHistoryController extends Controller
     public function getMostBooksBorrowed()
     {
         try {
-            $result = BorrowHistory::select('book_id', DB::raw('SUM(borrowed_copies) as COUNT_Borrowed'))
+            $result = BorrowHistory::select(
+                'book_id',
+                DB::raw('SUM(borrowed_copies) as count_borrowed')
+            )
                 ->groupBy('book_id')
-                ->orderBy('COUNT_Borrowed', 'desc')
+                ->orderByDesc('count_borrowed')
                 ->with(['book' => function ($query) {
                     $query->select('id', 'title');
                 }])
@@ -125,15 +128,23 @@ class BorrowHistoryController extends Controller
         try {
             $currentYear = Carbon::now()->year;
 
-            $borrowedBooksByMonth = BorrowHistory::selectRaw('MONTH(borrow_date) as month, SUM(borrowed_copies) as total_borrowed')
+            $borrowedBooksByMonth = BorrowHistory::selectRaw("
+                EXTRACT(MONTH FROM borrow_date) as month,
+                SUM(borrowed_copies) as total_borrowed
+            ")
                 ->whereYear('borrow_date', $currentYear)
-                ->groupByRaw('MONTH(borrow_date)')
-                ->orderByRaw('MONTH(borrow_date)')
+                ->groupByRaw('EXTRACT(MONTH FROM borrow_date)')
+                ->orderByRaw('EXTRACT(MONTH FROM borrow_date)')
                 ->get()
                 ->map(function ($record) {
-                    $record->month = date('F', mktime(0, 0, 0, $record->month, 10));
+                    $record->month = date(
+                        'F',
+                        mktime(0, 0, 0, (int)$record->month, 10)
+                    );
+
                     return $record;
                 });
+
             return response()->json($borrowedBooksByMonth, Response::HTTP_OK);
         } catch (\Exception $e) {
             return ExceptionHandler::handleException($e);
